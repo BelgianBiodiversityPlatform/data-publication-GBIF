@@ -34,6 +34,7 @@ library(leaflet)        # coordinate transformation
 library(widgetframe)    # coordinate transformation
 library(sf)             # coordinate transformation
 library(lubridate)      # for the date
+library(inborutils)     # for utf 8
 ```
 
 # Read source data
@@ -70,6 +71,11 @@ input_interim %<>% remove_empty("rows")
 ```{r}
 input_interim %>% head(n = 5)
 ```
+
+```{r}
+input_interim <- inborutils::convertdf_enc(input_interim, from = "latin1", to = "UTF-8") 
+```
+
 
 
 # Occurrence core
@@ -157,8 +163,13 @@ The following terms contain information about the taxon:
 ### occurrenceID
 
 ```{r}
-occurrence %<>% mutate(occurrenceID = institutionID) %>%
-                mutate(occurrenceID = str_c( institutionCode, ":" , occurrenceID, ":", ID_row))
+occurrence %<>% mutate(institutionCode = replace_na('unknown'))
+```
+
+
+```{r}
+occurrence %<>% mutate(occurrenceID = institutionID) %<>%
+                mutate(occurrenceID = str_c(ID_row, ":", institutionCode, ":" , occurrenceID))
   
 ```
 
