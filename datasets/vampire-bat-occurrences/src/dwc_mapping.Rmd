@@ -90,6 +90,24 @@ occurrence <- input_interim
 
 ## remove obsolete columns
 
+## remove original GBIF data
+
+
+```{r}
+#occurrence %<>% filter(occurrence$datasetName == 'GBIF')
+
+```
+
+make link to GBIF records
+
+```{r}
+occurrence %<>% mutate(dwc_relatedREsourceID = if_else( datasetName == 'GBIF'
+                                                    , str_c('https://www.gbif.org/occurrence/' , institutionID)
+                                                    , '' ))
+
+```
+
+  
 # Term mapping
 
 Map the data to [Darwin Core Occurrence](http://rs.gbif.org/core/dwc_occurrence_2015-07-02.xml).
@@ -101,7 +119,7 @@ Start with record-level terms which contain metadata about the dataset (which is
 ### datasetID
 
 ```{r}
-occurrence %<>% mutate(datasetID = "https://doi.org/complete_this")
+occurrence %<>% mutate(dwc_datasetID = "https://doi.org/complete_this")
 ```
 
 ### add row numbers to genrate occurrenceID unique
@@ -115,34 +133,34 @@ occurrence %<>% mutate(ID_row = row_number())
 ### type
 
 ```{r}
-occurrence %<>% mutate(type = "Event")
+occurrence %<>% mutate(dwc_type = "Event")
 ```
 
 ### language
 
 ```{r}
-occurrence %<>% mutate(language = "en") # e.g. "en"
+occurrence %<>% mutate(dwc_language = "en") # e.g. "en"
 ```
 
 ### license
 
 ```{r}
-occurrence %<>% mutate(license = "http://creativecommons.org/publicdomain/zero/1.0/") 
+occurrence %<>% mutate(dwc_license = "http://creativecommons.org/publicdomain/zero/1.0/") 
 # e.g. "http://creativecommons.org/publicdomain/zero/1.0/"
 ```
 
 ### rightsHolder
 
 ```{r}
-occurrence %<>% mutate(rightsHolder = institutionCode) # e.g. "INBO"
+occurrence %<>% mutate(dwc_rightsHolder = institutionCode) # e.g. "INBO"
 ```
 ### accessRights
 
 ```{r}
-occurrence %<>% mutate(accessRights = "http://www.inbo.be/en/norms-for-data-use") 
+occurrence %<>% mutate(dwc_accessRights = "http://www.inbo.be/en/norms-for-data-use") 
 ```
 ```{r}
-occurrence %<>% mutate(verbatimDatasetName = datasetName) 
+occurrence %<>% mutate(dwc_verbatimDatasetName = datasetName) 
 ```
 
 
@@ -150,7 +168,7 @@ occurrence %<>% mutate(verbatimDatasetName = datasetName)
 ### datasetName
 
 ```{r}
-occurrence %<>% mutate(datasetName = "A database of common vampire bat reports") # e.g. "Checklist of non-native freshwater fishes in Flanders, Belgium"
+occurrence %<>% mutate(dwc_datasetName = "A database of common vampire bat reports") # e.g. "Checklist of non-native freshwater fishes in Flanders, Belgium"
 ```
 
 The following terms contain information about the taxon:
@@ -158,11 +176,41 @@ The following terms contain information about the taxon:
 ### basisOfRecord
 
 ```{r}
-occurrence %<>% mutate(basisOfRecord = replace_na(basisOfRecord,'HumanObservation'))
+occurrence %<>% mutate(dwc_basisOfRecord = case_when (
+                     datasetName == 'Lee'   ~ "MaterialCitation"
+                    ,datasetName == 'Zarza' ~ "MaterialCitation"
+                    ,basisOfRecord == 'UNKNOWN' ~ "occurrence"
+                    ,datasetName == 'literature' ~ "MaterialCitation"
+                    ,datasetName == 'Piaggio' ~ "MaterialCitation" 
+                    ,datasetName == 'Juan Luis_Personal_Database' ~ "MaterialCitation"
+                    ,datasetName == 'Literature' ~ "MaterialCitation"
+                    ,datasetName == 'Bio_Diversi_Data_UY' ~ "MaterialCitation"
+                    ,datasetName == 'PCMS' ~ "MaterialCitation"
+                    ,datasetName == 'Literature' ~ "MaterialCitation"
+                    ,datasetName == 'Streicker_Peru' ~ "MaterialCitation"
+                    ,TRUE   ~ basisOfRecord ))
                 
 ```
+
+
 ```{r}
-##Occurrence %<>% mutate(basisOfRecord = replace(basisOfRecord, 'UNKNOWN', 'HumanObservation'))
+occurrence %<>% mutate(scientificName = case_when(kind_nl == 'Muskusrat' ~ "Ondatra zibethicus",
+                                   kind_nl == 'Bruine rat' ~ "Rattus norvegicus"
+                                       )
+                                )
+```
+
+
+```{r}
+occurrence %<>% mutate(dwc_relatedREsourceID = if_else( datasetName == 'GBIF'
+                                                    , str_c('https://www.gbif.org/occurrence/' , institutionID)
+                                                    , '' ))
+
+```
+
+
+```{r}
+##Occurrence %<>% mutate(basisOfRecord = replace(occurrence$basisOfRecord, 'UNKNOWN', 'HumanObservation'))
 ```
 
 
