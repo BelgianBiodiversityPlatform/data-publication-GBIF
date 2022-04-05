@@ -141,7 +141,9 @@ occurrence %<>% mutate(rightsHolder = institutionCode) # e.g. "INBO"
 ```{r}
 occurrence %<>% mutate(accessRights = "http://www.inbo.be/en/norms-for-data-use") 
 ```
-
+```{r}
+occurrence %<>% mutate(verbatimDatasetName = datasetName) 
+```
 
 
 
@@ -155,6 +157,14 @@ The following terms contain information about the taxon:
 
 ### basisOfRecord
 
+```{r}
+occurrence %<>% mutate(basisOfRecord = replace_na(basisOfRecord,'HumanObservation'))
+                
+```
+```{r}
+##Occurrence %<>% mutate(basisOfRecord = replace(basisOfRecord, 'UNKNOWN', 'HumanObservation'))
+```
+
 
 ### informationWithHeld
 
@@ -163,10 +173,10 @@ The following terms contain information about the taxon:
 ### occurrenceID
 
 ```{r}
-occurrence %<>% mutate(institutionCode = replace_na(institutionCode,'unknown'))
+occurrence %<>% mutate(institutionCode = replace_na(institutionCode,'unk'))
 ```
 ```{r}
-occurrence %<>% mutate(institutionID = replace_na(institutionID, 'unknown'))
+occurrence %<>% mutate(institutionID = replace_na(institutionID, 'unk'))
 ```
 
 
