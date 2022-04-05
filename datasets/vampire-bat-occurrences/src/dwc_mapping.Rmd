@@ -187,16 +187,15 @@ occurrence %<>% mutate(dwc_basisOfRecord = case_when (
                     ,datasetName == 'Bio_Diversi_Data_UY' ~ "MaterialCitation"
                     ,datasetName == 'PCMS' ~ "MaterialCitation"
                     ,datasetName == 'Literature' ~ "MaterialCitation"
-                    ,datasetName == 'Streicker_Peru' ~ "MaterialCitation"
+                    ,datasetName == 'Streicker_Peru' ~ "MaterialCitation"  
+                    ,datasetName == 'SAG' ~ "MaterialCitation" 
                     ,TRUE   ~ basisOfRecord ))
                 
 ```
 
 
 ```{r}
-occurrence %<>% mutate(scientificName = case_when(kind_nl == 'Muskusrat' ~ "Ondatra zibethicus",
-                                   kind_nl == 'Bruine rat' ~ "Rattus norvegicus"
-                                       )
+occurrence %<>% mutate(dwc_scientificName = scientificName
                                 )
 ```
 
@@ -221,18 +220,27 @@ occurrence %<>% mutate(dwc_relatedREsourceID = if_else( datasetName == 'GBIF'
 ### occurrenceID
 
 ```{r}
-occurrence %<>% mutate(institutionCode = replace_na(institutionCode,'unk'))
+occurrence %<>% mutate(dwc_institutionCode = replace_na(institutionCode,'unk'))
 ```
 ```{r}
-occurrence %<>% mutate(institutionID = replace_na(institutionID, 'unk'))
+occurrence %<>% mutate(dwc_institutionID = replace_na(institutionID, 'unk'))
 ```
 
 
 ```{r}
-occurrence %<>% mutate(occurrenceID = institutionID) %<>%
-                mutate(occurrenceID = str_c(ID_row, ":", institutionCode, ":" , occurrenceID))
+vdigest <- Vectorize(digest)
+
+occurrence %<>% mutate(dwc_occurrenceID = vdigest(str_c(ID_row, ":", dwc_institutionCode, ":" , dwc_institutionID), algo = "md5"))
   
 ```
+
+input_data %<>% mutate(taxon_id = paste(
+  "my_dataset_shortname", # e.g. "alien-fishes-checklist"
+  "taxon",
+  vdigest(paste(scientific_name, kingdom), algo = "md5"),
+  sep = ":"
+))
+
 
 ### recordedBy
 
