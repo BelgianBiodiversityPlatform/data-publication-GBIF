@@ -234,21 +234,19 @@ occurrence %<>% mutate(dwc_occurrenceID = vdigest(str_c(ID_row, ":", dwc_institu
   
 ```
 
-input_data %<>% mutate(taxon_id = paste(
-  "my_dataset_shortname", # e.g. "alien-fishes-checklist"
-  "taxon",
-  vdigest(paste(scientific_name, kingdom), algo = "md5"),
-  sep = ":"
-))
 
 
 ### recordedBy
 
 ```{r}
-occurrence %<>% mutate(recordedBy = '')
+occurrence %<>% mutate(dwc_recordedBy = institutionCode)
 ```
 
 ### individualCount
+
+```{r}
+occurrence %<>% mutate(dwc_individualCount = individualCount)
+```
 
 
 ### organismQuantity
@@ -261,63 +259,39 @@ occurrence %<>%  mutate(organismQuantity= individualCount)
 
 
 
-### organismQuentityType
-
-```{r}
-occurrence %<>%  mutate(organismQuantityType= action_en) 
-                
-```
 
 
 ### sex
 
+
+```{r}
+occurrence %<>%  mutate(dwc_sex = case_when(sex == 'M' ~'male'
+                                          ,sex == 'F' ~'female'
+                                          ,TRUE   ~ sex ))
+                
+                
+```
+
+
 ### lifeStage
+
+
+```{r}
+occurrence %<>%  mutate(dwc_lifestage = lifeStage) 
+                
+```
+
 
 ### behavior
 
 ### occurrenceRemarks
 
 ```{r}
-occurrence %<>% rename(occurrenceRemarks = 'action_en')
+occurrence %<>% rename(occurrenceRemarks = 'republished from https://doi.org/10.6084/m9.figshare.18745316')
 ```
 
-## samplingProtocol
 
-```{r}
-occurrence %<>% mutate(samplingEffort = materials_en)
-```
 
-```{r}
-occurrence %<>% rename(samplingProtocol = 'materials_en') %>%
- 
-
-# extract follow ups to new column
-mutate(follow_up = str_extract(samplingProtocol, "Follow-up=[0-9]*")) %>%
-# remove follow ups from samplingProtocol
-mutate(samplingProtocol = str_remove(samplingProtocol, "Follow-up=[0-9]*")) %>%
-# remove leading ", " if present
-mutate(samplingProtocol = str_remove(samplingProtocol, "^,\\s")) %>%
-# remove trailing ", " if present
-mutate(samplingProtocol = str_remove(samplingProtocol, ",\\s$")) %>%
-# replace ", , " in ","
-mutate(samplingProtocol = str_replace(samplingProtocol,", , ", ", ")) %>%  
-# rename follow up
-rename(samplingEffort2 = "follow_up") %>% 
-# replace follow-up with times visited
-mutate(samplingProtocol = str_remove_all(samplingProtocol, "=[0-9]*"))
-```
-
-### samplingEffort
-
-```{r}
-head(occurrence, n = 5)
-
-occurrence %<>%
-  # extract follow ups to new column
-  mutate(samplingEffort = str_replace(samplingEffort, "Follow-up=*", "Times-visited=")) %>%
-  mutate(samplingEffort = str_replace_all(samplingEffort, "=",":")) %>%
-  mutate(samplingEffort = str_replace_all(samplingEffort, ","," |"))
-```
 
 ### eventDate
 
