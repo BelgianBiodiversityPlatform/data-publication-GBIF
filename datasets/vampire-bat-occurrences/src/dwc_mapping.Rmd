@@ -298,18 +298,61 @@ occurrence %<>% mutate(dwc_eventDate = str_replace_all((paste( year,"-",month,"-
 head(occurrence, n = 5)
 ```
 
+# some tests
+
+# Data quality tests
+
+
+parsed_names <- occurrence %>%
+  distinct(scientificName)  %>%
+  pull() %>% # Create vector from dataframe
+  parsenames() # An rgbif function
+speciesList <- parsed_names %>%
+   select(scientificname)
+write_csv(speciesList, here::here("datasets","memo-occurrences", "data", "processed", "specieslist.csv"), na = "")
+
+```{r}
+countries <- occurrence %>%
+            distinct(country) %>%
+            pull() 
+view(countries)
+```
+
+
 # Location
 
 ```{r}
 occurrence %<>%
-  rename(decimalLongitude = X) %>%
-  rename(decimalLatitude = Y) %>%
-  mutate(geodeticDatum = "WGS84") %>%
-  mutate(coordinateUncertaintyInMeters = "30") %>%
-  mutate(verbatimCoordinateSystem = "Lambert coordinates") %>%
-  mutate(verbatimSRS = "Belgian Datum 1972") %>%
-  mutate(countryCode = "BE")  %>%            
-  mutate(continent = "Europe")
+  mutate(dwc_decimalLongitude = decimalLongitude) %>%
+  mutate(dwc_decimalLatitude = decimalLatitude) %>%
+  mutate(dwc_geodeticDatum = "WGS84") %>%
+  mutate(dwc_coordinateUncertaintyInMeters = coorditeUncertaintyInMeters) %>%
+  mutate(countryCode = case_when(  country == 'BRA' ~ 'BR'
+                                  ,country == 'ARG' ~ 'AR'
+                                  ,country == 'BLZ' ~ 'BZ'
+                                  ,country == 'BOL' ~ 'BO'
+                                  ,country == 'CHL' ~ 'CL'
+                                  ,country == 'COL' ~ 'CO'
+                                  ,country == 'CRI' ~ 'CR'
+                                  ,country == 'ECU' ~ 'EC'
+                                  ,country == 'GTM' ~ 'GT'
+                                  ,country == 'GUF' ~ 'GF'
+                                  ,country == 'GUY' ~ 'GY'
+                                  ,country == 'HND' ~ 'HN'
+                                  ,country == 'MEX' ~ 'MX'
+                                  ,country == 'NIC' ~ 'NI'
+                                  ,country == 'PAN' ~ 'PA'
+                                  ,country == 'PER' ~ 'PE'
+                                  ,country == 'PRY' ~ 'PY'
+                                  ,country == 'SLV' ~ 'SV'
+                                  ,country == 'SUR' ~ 'SR'
+                                  ,country == 'TTO' ~ 'TT'
+                                  ,country == 'URY' ~ 'UY'
+                                  ,country == 'VEN' ~ 'VE'
+                                  ,TRUE == coutry
+                                  
+                                  ))            
+  
 ```
 
 ```{r}
