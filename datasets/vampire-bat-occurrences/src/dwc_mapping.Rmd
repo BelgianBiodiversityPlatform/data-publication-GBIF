@@ -249,15 +249,6 @@ occurrence %<>% mutate(dwc_individualCount = individualCount)
 ```
 
 
-### organismQuantity
-
-
-```{r}
-occurrence %<>%  mutate(organismQuantity= individualCount) 
-                
-```
-
-
 
 
 
@@ -287,9 +278,8 @@ occurrence %<>%  mutate(dwc_lifestage = lifeStage)
 ### occurrenceRemarks
 
 ```{r}
-occurrence %<>% rename(occurrenceRemarks = 'republished from https://doi.org/10.6084/m9.figshare.18745316')
+occurrence %<>% mutate(dwc_occurrenceRemarks = 'republished from https://doi.org/10.6084/m9.figshare.18745316')
 ```
-
 
 
 
@@ -302,7 +292,7 @@ eventDate already ok in source file (should be)
 
 #occurrence %<>% ymd(date)
 
-occurrence %<>% mutate(eventDate = dmy(date))
+occurrence %<>% mutate(dwc_eventDate = str_replace_all((paste( year,"-",month,"-",day))," ",""))
 # mutate(eventDate = as_date(ymd(date))) # , format = "%Y-%m-%d")) 
 
 head(occurrence, n = 5)
