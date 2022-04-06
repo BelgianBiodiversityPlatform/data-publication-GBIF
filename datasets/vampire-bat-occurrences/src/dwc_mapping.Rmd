@@ -327,7 +327,7 @@ occurrence %<>%
   mutate(dwc_decimalLatitude = decimalLatitude) %>%
   mutate(dwc_geodeticDatum = "WGS84") %>%
   mutate(dwc_coordinateUncertaintyInMeters = coorditeUncertaintyInMeters) %>%
-  mutate(countryCode = case_when(  country == 'BRA' ~ 'BR'
+  mutate(dwc_countryCode = case_when(  country == 'BRA' ~ 'BR'
                                   ,country == 'ARG' ~ 'AR'
                                   ,country == 'BLZ' ~ 'BZ'
                                   ,country == 'BOL' ~ 'BO'
@@ -349,7 +349,7 @@ occurrence %<>%
                                   ,country == 'TTO' ~ 'TT'
                                   ,country == 'URY' ~ 'UY'
                                   ,country == 'VEN' ~ 'VE'
-                                  ,TRUE == coutry
+                                  ,TRUE ~ country
                                   
                                   ))            
   
@@ -358,38 +358,46 @@ occurrence %<>%
 ```{r}
 head(occurrence, n = 5)
 occurrence %<>%
-  mutate(verbatimLongitude = round(verbatimLongitude)) %>%
-  mutate(verbatimLatitude = round(verbatimLatitude)) %>%
-  mutate(decimalLongitude = round(decimalLongitude, digits = 5)) %>%
-  mutate(decimalLatitude = round(decimalLatitude, digits = 5))
+  mutate(dwc_decimalLongitude = round(decimalLongitude, digits = 5)) %>%
+  mutate(dwc_decimalLatitude = round(decimalLatitude, digits = 5))
 ```
 
 ```{r}
 occurrence %<>%   
-   mutate(decimalLatitude = as.character(format(decimalLatitude, nsmall = 5))) %>%
-   mutate(decimalLongitude = as.character(format(decimalLongitude, nsmall = 5)))
+   mutate(dwc_decimalLatitude = as.character(format(decimalLatitude, nsmall = 5))) %>%
+   mutate(dwc_decimalLongitude = as.character(format(decimalLongitude, nsmall = 5)))
 ```
 
 ### continent
 
-```{r}
-##occurrence %<>% mutate(continent = "Europe") # e.g. "Belgium = BE"
-```
+
 
 ### countryCode
 
+### stateProvince
+
 ```{r}
-#occurrence %<>% mutate(countryCode = "BE") # e.g. "Belgium = BE"
+
+occurrence %<>%
+  mutate(dwc_stateProvince = stateProvince)
+
 ```
 
 ### municipality
 
 municipality already in source file
 
+
+
+### locality
+
 ```{r}
 occurrence %<>%
-  mutate(municipality = str_remove(municipality,"\\(BE\\)"))
+  mutate(dwc_locality = locality_proper)
 ```
+
+
+
 
 ### verbatimcoordinates
 
@@ -397,64 +405,26 @@ occurrence %<>%
 
 ### verbatimLongitude
 
-### verbatimcoordinatesystem
 
-```{r}
-#occurrence %<>% mutate(verbatimcoordinatesystem = "Lambert coordinates") # 
-```
-
-### verbatimSRS
-
-```{r}
-#occurrence %<>% mutate(verbatimSRS = "Belgian Datum 1972")
-```
-
-### decimalLatitude
-
-### decimalLongitude
-
-### geodeticDatum
-
-### coordinateUncertaintyInMeters
-
-### georeferenceRemarks
-
-### identifiedBy
-
-```{r}
-occurrence %<>% mutate(identifiedBy = 'RATO')
-```
 
 ### scientificName 
 
 ```{r}
-occurrence %<>% mutate(scientificName = case_when(kind_nl == 'Muskusrat' ~ "Ondatra zibethicus",
-                                   kind_nl == 'Bruine rat' ~ "Rattus norvegicus"
-                                       )
-                                )
+occurrence %<>% mutate(dwc_scientificName =  scientificName    )
+                                
 ```
 
 ### kingdom
 
 ```{r}
-occurrence %<>% mutate(kingdom = "Animalia")
+occurrence %<>% mutate(dwc_kingdom = "Animalia")
 ```
 
-### scientificNameAuthorship
-
-```{r}
-occurrence %<>% mutate(scientificNameAuthorship = case_when(kind_nl == 'Muskusrat' ~ "Linnaeus, 1766",
-                                   kind_nl == 'Bruine rat' ~ "Berkenhout, 1759"
-                                       )
-                                )
-
-
-```
 
 ### taxonRank
 
 ```{r}
-occurrence %<>% mutate(taxonRank = "species")
+occurrence %<>% mutate(dwc_taxonRank = "species")
 ```
 
 ### nomenclaturalCode
@@ -467,67 +437,28 @@ occurrence %<>% mutate(nomenclaturalCode = "ICZN") # e.g. "ICZN"
 
 ```{r}
 occurrence %<>% 
-    ##select(individualCount) %>%
-    mutate(occurrenceStatus = case_when(action_nl == 'Vastgesteld' & individualCount > 0 ~ "Present",
-                                        action_nl == 'Vastgesteld' & individualCount == 0 ~ "Absent",
-                                        action_nl == 'Gevangen' & individualCount > 0 ~ "Present",
-                                        action_nl == 'Gevangen' & individualCount == 0 ~ "Absent",
-                                        action_nl == 'Verwijderd' & individualCount > 0 ~ "Present",
-                                        action_nl == 'Verwijderd' & individualCount == 0 ~ "Absent",
-                                        action_nl == 'Geen vangst' & individualCount > 0 ~ "Present",
-                                        action_nl == 'Geen vangst' & individualCount == 0 ~ "Absent",
-                                        action_nl == 'Sporen' & individualCount > 0 ~ "Present",
-                                        action_nl == 'Sporen' & individualCount == 0 ~ "Absent",
-                                        action_nl == 'Hoeveelheid'& individualCount > 0 ~ "Present",
-                                        action_nl == 'Hoeveelheid'& individualCount == 0 ~ "Absent",
-                                        individualCount > 0 ~ "Present",
-                                        individualCount == 0 ~ "Absent",
-                                        is.na(action_nl) | is.na(individualCount) ~ "Absent"
-                                                  
-                                       ))
-head(occurrence, n = 5)
-```
-
-```{r eval=FALSE, include=FALSE}
-
-occurrence %<>%
-        filter(eventDate > '2018-01-12' & occurrenceStatus == "Present" & scientificName == "Ondatra zibethicus") 
-        
-head (occurrence, n = 5 )
+    mutate(dwc_occurrenceStatus = 'present')
 
 ```
-
-
-
 
 
 
 ## Post-processing
 
 ```{r}
+occurrence %<>% select(starts_with("dwc_"))
+```
+
+
+```{r}
 colnames(occurrence) <- str_remove(colnames(occurrence), "dwc_")
-##occurrence %<>% select(-c(disposition, etiket_ref, collection, scientificName)) %<>% #remove collection columns
-          ##  rename(scientificName = verbatimScientificName) 
+ 
 ```
 
 ```{r}
 occurrence <- mutate_all(occurrence, as.character())
 ```
 
-Define the order of the output columns
-
-```{r}
-col_order <- c( "type","language","license","rightsHolder","accessRights","datasetID"
-               ,"institutionCode","datasetName","basisOfRecord","occurrenceID","recordedBy"
-               ,"individualCount","organismQuantity","organismQuantityType","occurrenceStatus","occurrenceRemarks"
-               ,"samplingProtocol","samplingEffort"
-               ,"eventDate","continent","countryCode","municipality"
-               ,"verbatimLatitude","verbatimLongitude","verbatimCoordinateSystem","verbatimSRS"
-               ,"decimalLatitude","decimalLongitude","geodeticDatum","coordinateUncertaintyInMeters"
-               ,"identifiedBy","scientificName","kingdom","scientificNameAuthorship","taxonRank","nomenclaturalCode"
-               )
-occurrence <- occurrence[, col_order]
-```
 
 Preview data:
 
