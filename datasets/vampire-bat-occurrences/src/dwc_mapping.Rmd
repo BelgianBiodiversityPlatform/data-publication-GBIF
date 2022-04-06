@@ -201,7 +201,7 @@ occurrence %<>% mutate(dwc_scientificName = scientificName
 
 
 ```{r}
-occurrence %<>% mutate(dwc_relatedREsourceID = if_else( datasetName == 'GBIF'
+occurrence %<>% mutate(dwc_relatedResourceID = if_else( datasetName == 'GBIF'
                                                     , str_c('https://www.gbif.org/occurrence/' , institutionID)
                                                     , '' ))
 
@@ -315,7 +315,7 @@ write_csv(speciesList, here::here("datasets","memo-occurrences", "data", "proces
 countries <- occurrence %>%
             distinct(country) %>%
             pull() 
-view(countries)
+#view(countries)
 ```
 
 
@@ -440,7 +440,39 @@ occurrence %<>%
     mutate(dwc_occurrenceStatus = 'present')
 
 ```
+```{r}
+occurrence %<>% 
+    mutate(dwc_references = Reference)
 
+```
+### Resource RElationShip
+
+```{r}
+resourceRelationShip <- occurrence
+```
+
+```{r}
+resourceRelationShip %<>% filter(dwc_verbatimDatasetName == 'GBIF')
+```
+
+```{r}
+resourceRelationShip %<>% select(dwc_occurrenceID, dwc_relatedResourceID)
+```
+```{r}
+resourceRelationShip %<>% mutate(resourceID = dwc_occurrenceID)
+```
+
+```{r}
+resourceRelationShip %<>% mutate(relatedResourceID = dwc_relatedResourceID)
+```
+
+```{r}
+resourceRelationShip %<>% mutate(relationshipOfResource = 'is duplicate of')
+```
+
+```{r}
+resourceRelationShip %<>% mutate(resourceRelationShipID = 'https://doi.org/10.15468/dl.my64ap')
+```
 
 
 ## Post-processing
@@ -469,5 +501,34 @@ occurrence %>% head()
 Save to CSV:
 
 ```{r}
-write_csv(occurrence, here::here("datasets", "mica-rato-occurrences", "data", "processed", "occurrence.csv"), na = "")
+write_csv(occurrence, here::here("datasets", "vampire-bat-occurrences", "data", "processed", "occurrence.csv"), na = "")
+```
+
+
+Data Quality Checks
+
+```{r}
+
+parsed_names <- occurrence %>%
+  distinct(scientificName)  %>%
+  pull() %>% # Create vector from dataframe
+  parsenames() # An rgbif function
+speciesList <- parsed_names %>%
+   select(scientificname)
+write_csv(speciesList, here::here("datasets","vampire-bat-occurrences", "data", "processed", "specieslist.csv"), na = "")
+```
+```{r}
+
+localities <- occurrence %>%
+            distinct(locality) %>%
+            pull() 
+view(localities)
+```
+
+```{r}
+
+individualCount <- occurrence %>%
+            distinct(individualCount) %>%
+            pull() 
+view(individualCount)
 ```
