@@ -504,6 +504,12 @@ Save to CSV:
 write_csv(occurrence, here::here("datasets", "vampire-bat-occurrences", "data", "processed", "occurrence.csv"), na = "")
 ```
 
+Save to CSV:
+
+```{r}
+write_csv(resourceRelationShip, here::here("datasets", "vampire-bat-occurrences", "data", "processed", "resourceRelationShip.csv"), na = "")
+```
+
 
 Data Quality Checks
 
