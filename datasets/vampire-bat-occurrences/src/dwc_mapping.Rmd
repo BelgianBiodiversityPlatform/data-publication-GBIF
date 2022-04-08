@@ -410,16 +410,25 @@ occurrence %<>%
 ### scientificName 
 
 ```{r}
-occurrence %<>% mutate(dwc_scientificName =  scientificName    )
+occurrence %<>% mutate(dwc_scientificName = 'Desmodus rotundus')
                                 
 ```
+Desmodus rotundus
+Desmodus desmodus rotundus
+Desmodus d. rotundus
+Desmodus rotundus rotundus
+Desmodus rotundus - exposiÃ§Ã£o
 
 ### kingdom
 
 ```{r}
 occurrence %<>% mutate(dwc_kingdom = "Animalia")
 ```
+### family
 
+```{r}
+occurrence %<>% mutate(dwc_family = "Phyllostomidae")
+```
 
 ### taxonRank
 
@@ -458,6 +467,7 @@ resourceRelationShip %<>% filter(dwc_verbatimDatasetName == 'GBIF')
 ```{r}
 resourceRelationShip %<>% select(dwc_occurrenceID, dwc_relatedResourceID)
 ```
+
 ```{r}
 resourceRelationShip %<>% mutate(resourceID = dwc_occurrenceID)
 ```
@@ -537,4 +547,11 @@ individualCount <- occurrence %>%
             distinct(individualCount) %>%
             pull() 
 view(individualCount)
+```
+```{r}
+
+institutionCode <- occurrence %>%
+            distinct(institutionCode) %>%
+            pull() 
+view(institutionCode)
 ```
