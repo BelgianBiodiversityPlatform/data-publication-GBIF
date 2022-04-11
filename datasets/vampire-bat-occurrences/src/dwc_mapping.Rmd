@@ -48,7 +48,7 @@ File exported to csv
 
 ```{r}
 
-input_interim <- read_delim(here::here("datasets", "vampire-bat-occurrences", "data", "raw", "Desmodus_dataset_Dec_2021.csv" ), ",")
+input_interim <- read_delim(here::here("datasets", "vampire-bat-occurrences", "data", "raw", "Desmodus_dataset_Apr_2022.csv" ), ",")
 
 ```
 
@@ -188,7 +188,15 @@ occurrence %<>% mutate(dwc_basisOfRecord = case_when (
                     ,datasetName == 'PCMS' ~ "MaterialCitation"
                     ,datasetName == 'Literature' ~ "MaterialCitation"
                     ,datasetName == 'Streicker_Peru' ~ "MaterialCitation"  
-                    ,datasetName == 'SAG' ~ "MaterialCitation" 
+                    ,datasetName == 'SAG' ~ "MaterialCitation"
+                    ,basisOfRecord == 'PRESERVED_SPECIMEN' ~ "PreservedSpecimen"
+                    ,basisOfRecord == 'HUMAN_OBSERVATION' ~ "HumanObservation"
+                    ,basisOfRecord == 'LIVE_SPECIMEN' ~ "LivingSpecimen"
+                    ,basisOfRecord == 'MATERIAL_SAMPLE' ~ "MaterialSample"
+                    ,basisOfRecord == 'MACHINE_OBSERVATION' ~ "MachineObservation"
+                    ,basisOfRecord == 'UNKNOWN' ~ "occurrence"
+                    
+                    
                     ,TRUE   ~ basisOfRecord ))
                 
 ```
