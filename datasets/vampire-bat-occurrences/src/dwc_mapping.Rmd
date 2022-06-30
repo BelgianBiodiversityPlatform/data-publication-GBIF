@@ -35,6 +35,7 @@ library(widgetframe)    # coordinate transformation
 library(sf)             # coordinate transformation
 library(lubridate)      # for the date
 library(inborutils)     # for utf 8
+library(countrycode)
 ```
 
 # Read source data
@@ -48,7 +49,7 @@ File exported to csv
 
 ```{r}
 
-input_interim <- read_delim(here::here("datasets", "vampire-bat-occurrences", "data", "raw", "Desmodus_dataset_Apr_2022.csv" ), ",")
+input_interim <- read_delim(here::here("datasets", "vampire-bat-occurrences", "data", "raw", "Desmodus_dataset_Apr_2022.csv" ), ",", col_types = cols(.default = 'c'))
 
 ```
 
@@ -195,8 +196,9 @@ occurrence %<>% mutate(dwc_basisOfRecord = case_when (
                     ,basisOfRecord == 'MATERIAL_SAMPLE' ~ "MaterialSample"
                     ,basisOfRecord == 'MACHINE_OBSERVATION' ~ "MachineObservation"
                     ,basisOfRecord == 'UNKNOWN' ~ "occurrence"
-                    
-                    
+                    ,basisOfRecord == 'HumanHUMAN_OBSERVATIONbPRESERVED_SPECIMENervatiHUMAN_OBSERVATIONn' ~ "occurrence"
+                    ,basisOfRecord == 'MachineHUMAN_OBSERVATIONbPRESERVED_SPECIMENervatiHUMAN_OBSERVATIONn' ~ "occurrence"
+                    ,basisOfRecord == '' ~ "occurrence"
                     ,TRUE   ~ basisOfRecord ))
                 
 ```
@@ -329,13 +331,10 @@ countries <- occurrence %>%
 
 # Location
 
-```{r}
-occurrence %<>%
-  mutate(dwc_decimalLongitude = decimalLongitude) %>%
-  mutate(dwc_decimalLatitude = decimalLatitude) %>%
-  mutate(dwc_geodeticDatum = "WGS84") %>%
-  mutate(dwc_coordinateUncertaintyInMeters = coorditeUncertaintyInMeters) %>%
-  mutate(dwc_countryCode = case_when(  country == 'BRA' ~ 'BR'
+removed snippet from Code, now use function coutryCode
+
+```{r eval=FALSE, include=FALSE}
+mutate(dwc_countryCode = case_when(  country == 'BRA' ~ 'BR'
                                   ,country == 'ARG' ~ 'AR'
                                   ,country == 'BLZ' ~ 'BZ'
                                   ,country == 'BOL' ~ 'BO'
@@ -359,15 +358,35 @@ occurrence %<>%
                                   ,country == 'VEN' ~ 'VE'
                                   ,TRUE ~ country
                                   
-                                  ))            
+                                  )) 
+```
+
+
+
+```{r eval=FALSE, include=FALSE}
+occurrence$country <-  countrycode(occurrence$country, origin =  'iso2c', destination = 'iso3c')
+
+```
+
+
+
+
+```{r}
+occurrence %<>%
+  mutate(dwc_decimalLongitude = decimalLongitude) %<>%
+  mutate(dwc_decimalLatitude = decimalLatitude) %<>%
+  mutate(dwc_geodeticDatum = "WGS84") %<>%
+  mutate(dwc_coordinateUncertaintyInMeters = coorditeUncertaintyInMeters) %<>%
+  mutate(dwc_countryCode = countrycode(occurrence$country, origin =  'iso3c', destination = 'iso2c'))
+             
   
 ```
 
 ```{r}
 head(occurrence, n = 5)
 occurrence %<>%
-  mutate(dwc_decimalLongitude = round(decimalLongitude, digits = 5)) %>%
-  mutate(dwc_decimalLatitude = round(decimalLatitude, digits = 5))
+  mutate(dwc_decimalLongitude = round( as.numeric(decimalLongitude), digits = 5)) %>%
+  mutate(dwc_decimalLatitude = round(as.numeric(decimalLatitude), digits = 5))
 ```
 
 ```{r}
@@ -529,7 +548,7 @@ write_csv(resourceRelationShip, here::here("datasets", "vampire-bat-occurrences"
 ```
 
 
-Data Quality Checks
+## Data Quality Checks
 
 ```{r}
 
@@ -563,3 +582,13 @@ institutionCode <- occurrence %>%
             pull() 
 view(institutionCode)
 ```
+
+
+
+```{r}
+basisOfRecord <- occurrence %>%
+            distinct(basisOfRecord) %>%
+            pull() 
+view(basisOfRecord)
+```
+
