@@ -5,7 +5,7 @@ library(devtools)
 
 #If you do not have CoordinateCleaneralready, install with line below
 #install_github("ropensci/CoordinateCleaner")
-1
+
 
 library(countrycode)
 library(CoordinateCleaner)
